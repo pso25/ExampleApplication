@@ -1,14 +1,20 @@
 version: 2.1
 
 workflows:
-  version: 2
-  build:
+  build-and-deploy:
     jobs:
       - build:
           filters:
             branches:
               only:
-                - main
+                - master
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
 
 jobs:
   build:
@@ -29,10 +35,14 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-deploy:
+
+  deploy:
     docker:
       - image: circleci/node:10.16.3
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:PASTE-YOUR-FINGERPRINT-HERE"
       - run:
           name: deploy-application
           command: ssh -o StrictHostKeyChecking=no $EC2_USERNAME@$EC2_PUBLIC_DNS "rm -rf ExampleApplication; git clone https://github.com/pso25/ExampleApplication.git; source ExampleApplication/deploy.sh"
