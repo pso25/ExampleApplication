@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
-sudo apt update && sudo apt install nodejs npm
+# Install Node.js and npm if missing
+sudo apt update
+sudo apt install -y nodejs npm
 
-#Install pm2 which is a production process manager for Node.js with a built load balancer
+# Install pm2 globally
 sudo npm install -g pm2
 
-#Stop any instance of our application running currently
-pm2 stop example_app
+# Stop and remove the old app process (ignore errors if it doesn't exist)
+pm2 stop example_app || true
+pm2 delete example_app || true
 
-#Change directory to folder where application is downloaded.
-cd ExampleApp
+# Go into the cloned repo (was "cd ExampleApp")
+cd ExampleApplication
 
-#Install application dependencies
+# Install dependencies
 npm install
 
-#Start the application with the process name example_app using pm2
-pm2 start ./bin/www –name example_app
+# Start the app
+pm2 start ./bin/www --name example_app
